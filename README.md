@@ -1,3 +1,13 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/atlas-logo-white.png">
+    <img src="docs/atlas-logo-dark.png" alt="Atlas AI" width="220">
+  </picture>
+</p>
+
+<h1 align="center">Reflex <sub><sup>by Atlas AI</sup></sub></h1>
+<p align="center">A local, fast browser agent: a decision model that acts in 0.2 s, a vision model that thinks it through when unsure.</p>
+
 # Computer-Desicion: a local Jev-style decision model for computer use
 
 A small **decision model** in the style of TypeSafe's Jev ("System One"): it takes a text **state** and
