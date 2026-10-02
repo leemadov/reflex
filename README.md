@@ -7,6 +7,11 @@
 
 <h1 align="center">Reflex <sub><sup>by Atlas AI</sup></sub></h1>
 <p align="center">A local, fast browser agent: a decision model that acts in 0.2 s, a vision model that thinks it through when unsure.</p>
+<p align="center">
+  <a href="https://huggingface.co/Atlas-AI-research/reflex-instinct-0.6b"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Reflex%20Instinct-0.6B-E60ACF?style=for-the-badge" alt="Reflex Instinct 0.6B on Hugging Face"></a>
+  &nbsp;
+  <a href="https://huggingface.co/Atlas-AI-research/reflex-reason-2b"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Reflex%20Reason-2B-6A5CFF?style=for-the-badge" alt="Reflex Reason 2B on Hugging Face"></a>
+</p>
 
 # Computer-Desicion: a local Jev-style decision model for computer use
 
