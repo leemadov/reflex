@@ -39,7 +39,8 @@ are relabeled with instructions. Training uses only the train splits.
 
 `prepare.py` strips per-link URLs, icon-font glyphs and StaticText that repeats its parent's name (a live-web page
 goes from a median of 11k to 4.5k tokens), and drops malformed agent outputs. The same cleanup runs at serve time.
-[Mind2Web](https://huggingface.co/datasets/osunlp/Mind2Web) is downloaded to `data/raw/mind2web` but not used yet.
+[Multimodal-Mind2Web](https://huggingface.co/datasets/osunlp/Multimodal-Mind2Web) (screenshots) trains System 2 only,
+[Reflex Reason](https://huggingface.co/Atlas-AI-research/reflex-reason-2b) (`prepare_m2w.py`, `train_s2.py`).
 
 Operations learned: `CLICK, TYPE_TEXT, HOVER, PRESS_KEY, SCROLL_DOWN, SCROLL_UP, GOTO_URL, GO_BACK, GO_FORWARD,
 SWITCH_TAB, DONE, BLOCKED`. Training randomizes option names, descriptions, order and subsets, and question names and
