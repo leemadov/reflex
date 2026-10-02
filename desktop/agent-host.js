@@ -46,7 +46,7 @@ function makeStore(file, onChange) {
   return { local: area("local"), session: area("session"), raw: areas };
 }
 
-function startAgent({ extDir, browser, storeFile, onStorageChange }) {
+function startAgent({ extDir, browser, storeFile, onStorageChange, trace }) { // trace(method, params): optional, for recordings
   const wc = browser.webContents;
   const listeners = { message: [], detach: [], updated: [], storage: [] };
   const store = makeStore(storeFile, (changes, name) => {
@@ -65,7 +65,7 @@ function startAgent({ extDir, browser, storeFile, onStorageChange }) {
       // attached once and kept: no reattach per run (faster), and the app has no "is debugging" bar to clear
       async attach() { if (!wc.debugger.isAttached()) wc.debugger.attach("1.3"); },
       async detach() {},
-      sendCommand: (_target, method, params) => wc.debugger.sendCommand(method, params || {}),
+      sendCommand: (_target, method, params) => { trace?.(method, params); return wc.debugger.sendCommand(method, params || {}); },
       onDetach: event(listeners.detach),
     },
     storage: { local: store.local, session: store.session, onChanged: event(listeners.storage) },

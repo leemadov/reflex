@@ -22,3 +22,5 @@ tests/*.png
 videos/clicky-ad/renders/
 videos/clicky-ad/snapshots/
 videos/clicky-ad/.hyperframes/frames-dark-backup/*.mp4
+desktop/rec/
+videos/clicky-ad/.hyperframes/old-footage/

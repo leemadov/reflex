@@ -23,8 +23,10 @@ app.setName("Reflex");
 app.commandLine.appendSwitch("disable-features", "CalculateNativeWinOcclusion");
 app.commandLine.appendSwitch("disable-renderer-backgrounding");
 app.commandLine.appendSwitch("disable-backgrounding-occluded-windows");
+// self-tests and recordings get their own profile, so they run beside the user's open Reflex instead of quitting
+if (process.env.REFLEX_SELFTEST || process.env.REFLEX_RECORD) app.setPath("userData", path.join(app.getPath("temp"), "reflex-test-profile"));
 if (!app.requestSingleInstanceLock()) app.quit();
-let win, browser, chat, agent, server;
+let win, browser, chat, agent, server, traceHook = null;
 
 const send = (channel, ...args) => {
   for (const wc of [win?.webContents, chat?.webContents]) if (wc && !wc.isDestroyed()) wc.send(channel, ...args);
@@ -90,7 +92,7 @@ function createWindow() {
   for (const wc of [win.webContents, bw, chat.webContents]) shortcuts(wc);
 
   agent = startAgent({ extDir: EXT, browser, storeFile: path.join(app.getPath("userData"), "reflex-store.json"),
-    onStorageChange: (changes, area) => send("storage-changed", changes, area) });
+    onStorageChange: (changes, area) => send("storage-changed", changes, area), trace: (m, p) => traceHook?.(m, p) });
   // re-apply the chosen mode's current definition on every start (definitions can change between versions)
   const mode = MODES[agent.store.raw.local.mode] ? agent.store.raw.local.mode : "balanced";
   agent.store.local.set({ mode, theme: agent.store.raw.local.theme || "pink", ...MODES[mode] });
@@ -104,6 +106,8 @@ function createWindow() {
     onStatus: (s) => send("server", s) });
   server.start();
   if (process.env.REFLEX_SELFTEST) win.once("ready-to-show", () => require("./selftest")({ win, browser, agent, server, dir: process.env.REFLEX_SELFTEST }));
+  if (process.env.REFLEX_RECORD) win.once("ready-to-show", () => require("./record")({ win, browser, agent, server, dir: process.env.REFLEX_RECORD,
+    setTrace: (fn) => { traceHook = fn; } }));
 }
 
 // ---------- IPC: shell (top bar) ----------
