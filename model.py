@@ -171,7 +171,10 @@ def load(ckpt=None, device="cuda"):
         bb = PeftModel.from_pretrained(bb, ckpt).merge_and_unload()
     m = Decider(bb)
     if ckpt:
-        m.load_state_dict(torch.load(f"{ckpt}/head.pt", map_location="cpu"), strict=False)
+        import os
+        from safetensors.torch import load_file  # head.safetensors is the published form; head.pt is what train.py writes
+        st = f"{ckpt}/head.safetensors"
+        m.load_state_dict(load_file(st) if os.path.exists(st) else torch.load(f"{ckpt}/head.pt", map_location="cpu"), strict=False)
     return m.to(device).eval(), tok
 
 
