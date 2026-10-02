@@ -1,0 +1,2 @@
+val majority-op baseline: 0.5595
+eval (held out) {"op_acc": 0.621, "target_acc": 0.4158, "step_acc": 0.31, "n": 2000, "latency_ms_p50": 162, "latency_ms_p90": 452, "step_acc_nnetnav-live": 0.3, "step_acc_nnetnav-wa": 0.3204, "ece": 0.0247, "ece_calibrated": 0.0247, "T": 1.0, "operation_top5": 0.9515, "operation_cover@0.9": 0.0625, "operation_acc@0.9": 0.904, "target_top5": 0.7023, "target_cover@0.9": 0.067, "target_acc@0.9": 0.9505}

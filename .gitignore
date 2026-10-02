@@ -1,0 +1,24 @@
+# models: published separately on Hugging Face
+checkpoints/
+checkpoints_s2/
+checkpoints_s2_*/
+# training data (prepare.py / prepare_m2w.py rebuild it)
+data/
+
+# dependencies, caches, local state
+node_modules/
+__pycache__/
+.agent-browser-profile/
+
+# logs and run output (the two result logs the README cites stay)
+*.log
+*.err
+!final_eval.log
+!verify.log
+desktop/selftest-*/
+tests/*.png
+
+# video renders and snapshots (regenerable, large)
+videos/clicky-ad/renders/
+videos/clicky-ad/snapshots/
+videos/clicky-ad/.hyperframes/frames-dark-backup/*.mp4

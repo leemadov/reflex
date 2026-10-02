@@ -1,0 +1,10 @@
+[PASS] Decides, never writes: backbone is a bare Qwen3Model (no language-model head); the only output layer scores the options it is given, so every answer is a probability over those options
+[PASS] Answers stay inside the supplied options: 1200 answers (choice, noul, score; 2 to 600+ options; option names never seen in training): 0 violations
+[PASS] One forward pass per request: backbone passes per 4-question request: [1]; nothing is decoded token by token
+[PASS] Fast: p50 191 ms, p90 605 ms per 4-question request on real pages (median 4564 tokens); Jev quotes 70-500 ms
+[PASS] Jev request/response contract: state as string/object/array: True; 255-option choice answered: True; same request twice gives the identical answer: True
+[PASS] Calibrated: ECE 0.050 on 511 held-out decisions | 0.0-0.2: says 0.15, right 0.15 (n=41) | 0.2-0.4: says 0.31, right 0.28 (n=136) | 0.4-0.6: says 0.49, right 0.51 (n=174) | 0.6-0.8: says 0.69, right 0.71 (n=95) | 0.8-1.0: says 0.89, right 0.94 (n=65)
+[INFO] Question independence: asking a question alone or in the other order moves its probabilities by median 0.001, max 0.107; top answer changed in 2/240 cases (Jev answers each question separately; here they share one pass)
+The following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+[INFO] System 1 vs System 2: same 3 decisions: this model 192 ms, one pass each; base Qwen3-0.6B reasoning in text 14.0 s and 380 generated tokens each (one pass per token)
+6 PASS, 0 FAIL, 2 INFO

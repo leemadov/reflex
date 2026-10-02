@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en" data-theme="pink">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' file:; img-src https: http: data: file:; style-src 'self' 'unsafe-inline' file:; script-src 'self' 'unsafe-inline'; font-src 'self' file:">
+<title>Reflex</title>
+<style>
+  @font-face { font-family: "Inter"; src: url("../extension/fonts/Inter-latin.woff2") format("woff2"); font-weight: 300 700; font-display: block; }
+  /* the ad's tokens (videos/clicky-ad/STYLE.md) */
+  :root { --ground: #f5f5f7; --card: #fff; --ink: #1d1d1f; --muted: #6e6e73; --light: #86868b; --line: rgba(29, 29, 31, 0.08);
+          --ok: #1f9d55; --warn: #e8a317; --bad: #d92d20; --shadow: 0 18px 48px rgba(29, 29, 31, 0.10), 0 2px 6px rgba(29, 29, 31, 0.05); }
+  [data-theme="pink"]   { --c1: #E60ACF; --c2: #FF4FD8; --c3: #FF9BDD; --c4: #6EC8F0; --g1: #E60ACF; --g2: #B83CF0; --g3: #6A5CFF; --g4: #1E9BD7; }
+  [data-theme="violet"] { --c1: #4B1FE6; --c2: #8B5CF6; --c3: #CDBBFF; --c4: #A6E3C4; --g1: #3D1FE0; --g2: #6D3BF5; --g3: #8B5CF6; --g4: #1F9E78; }
+  [data-theme="blue"]   { --c1: #0030FF; --c2: #0A84FF; --c3: #19D3FF; --c4: #F2C3A0; --g1: #0030FF; --g2: #0A6CFF; --g3: #0096D6; --g4: #0A6CFF; }
+  [data-theme="lime"]   { --c1: #3DB511; --c2: #9ED80F; --c3: #F2E600; --c4: #5FE3D2; --g1: #2E8F0C; --g2: #3DA60F; --g3: #129E86; --g4: #0E86A8; }
+  :root { --grad: linear-gradient(90deg, var(--g1), var(--g2), var(--g3), var(--g4));
+          --glow: conic-gradient(from var(--a, 0deg), var(--c1), var(--c2), var(--c4), var(--c3), var(--c1)); }
+  @property --a { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; overflow: hidden; }
+  body { display: grid; grid-template-rows: 52px 1fr; color: var(--ink); font: 13px/1.4 "Inter", system-ui, "Segoe UI", sans-serif;
+         -webkit-font-smoothing: antialiased; user-select: none;
+         background: radial-gradient(1100px 520px at 8% 110%, color-mix(in srgb, var(--c2) 9%, transparent), transparent 70%),
+                     radial-gradient(900px 480px at 96% 100%, color-mix(in srgb, var(--c4) 10%, transparent), transparent 70%), var(--ground); }
+  button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
+  svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+  .gt { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+  /* top bar: draggable; the native window buttons overlay its right 140 px */
+  .top { display: flex; align-items: center; gap: 12px; padding: 0 152px 0 16px; background: var(--ground); -webkit-app-region: drag; }
+  .top > * { -webkit-app-region: no-drag; }
+  .brand { display: flex; align-items: center; gap: 9px; -webkit-app-region: drag; min-width: 150px; }
+  .mark { display: flex; gap: 2px; align-items: flex-end; height: 22px; }
+  .mark i { width: 6px; border-radius: 999px; background: linear-gradient(180deg, var(--c3), var(--c1) 58%, var(--c4)); }
+  .mark i:nth-child(1) { height: 13px; } .mark i:nth-child(2) { height: 22px; } .mark i:nth-child(3) { height: 17px; }
+  .brand b { font-size: 17px; font-weight: 650; letter-spacing: -0.03em; }
+  .brand small { font-size: 9.5px; color: var(--light); letter-spacing: 0.14em; text-transform: uppercase; margin-left: 2px; padding-top: 3px; }
+  .navbtn { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; color: var(--muted); }
+  .navbtn:hover:not(:disabled) { background: rgba(29, 29, 31, 0.06); color: var(--ink); }
+  .navbtn:disabled { opacity: 0.3; cursor: default; }
+
+  .address { position: relative; isolation: isolate; flex: 1; max-width: 760px; height: 34px; display: flex; align-items: center; gap: 8px;
+             padding: 0 12px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); box-shadow: 0 1px 3px rgba(29,29,31,.04); }
+  .address::before { content: ""; position: absolute; inset: -2px; border-radius: inherit; z-index: -2; background: var(--glow); filter: blur(7px);
+                     opacity: 0; transition: opacity .2s; animation: spin 5s linear infinite; }
+  .address::after { content: ""; position: absolute; inset: 0; border-radius: inherit; z-index: -1; background: var(--card); }
+  .address:focus-within::before { opacity: 0.55; }
+  .address img, .address .globe { width: 16px; height: 16px; flex: none; border-radius: 4px; color: var(--light); }
+  .address input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font: inherit; font-size: 13px; color: var(--ink); user-select: text; }
+  .address input::placeholder { color: var(--light); }
+  .bar { position: absolute; left: 14px; right: 14px; bottom: -1px; height: 2px; border-radius: 2px; overflow: hidden; opacity: 0; transition: opacity .2s; }
+  .bar::after { content: ""; position: absolute; inset: 0; width: 40%; background: var(--grad); animation: load 1.1s ease-in-out infinite; }
+  .loading .bar { opacity: 1; }
+
+  .modes { display: flex; padding: 3px; border-radius: 999px; background: rgba(29, 29, 31, 0.05); }
+  .modes button { padding: 5px 12px; border-radius: 999px; font-size: 12px; font-weight: 550; color: var(--muted); transition: color .15s, background .15s; }
+  .modes button:hover { color: var(--ink); }
+  .modes button[aria-pressed="true"] { color: #fff; background: linear-gradient(135deg, var(--g1), var(--g3)); box-shadow: 0 4px 12px color-mix(in srgb, var(--c1) 30%, transparent); }
+  .chip { display: inline-flex; align-items: center; gap: 7px; padding: 5px 11px; border-radius: 999px; background: var(--card);
+          border: 1px solid var(--line); font-size: 12px; color: var(--muted); white-space: nowrap; cursor: default; }
+  .chip .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--light); }
+  .chip[data-s="ready"] .dot { background: var(--ok); }
+  .chip[data-s="system1"] .dot { background: var(--warn); animation: pulse 1s ease-in-out infinite; }
+  .chip[data-s="starting"] .dot { animation: pulse 1s ease-in-out infinite; }
+  .chip[data-s="error"] .dot { background: var(--bad); }
+  .live { display: none; align-items: center; gap: 8px; padding: 4px 4px 4px 11px; border-radius: 999px; color: #fff; font-size: 12px; font-weight: 550;
+          background: linear-gradient(135deg, var(--g1), var(--g3)); box-shadow: 0 6px 16px color-mix(in srgb, var(--c1) 32%, transparent); }
+  .live.on { display: inline-flex; }
+  .live i { width: 7px; height: 7px; border-radius: 50%; background: #fff; animation: pulse 1s ease-in-out infinite; }
+  .live button { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: rgba(255, 255, 255, 0.22); }
+  .live button svg { width: 11px; height: 11px; }
+
+  /* stage (the browser view sits exactly over .stage) and the chat slot */
+  main { display: grid; grid-template-columns: 1fr 420px; gap: 14px; padding: 2px 14px 14px; min-height: 0; }
+  .stage, .chatslot { position: relative; isolation: isolate; border-radius: 16px; background: var(--card); box-shadow: var(--shadow); min-height: 0; }
+  .chatslot { border-radius: 18px; background: #f7f7fa; border: 1px solid var(--line); }
+  .stage::before { content: ""; position: absolute; inset: -5px; border-radius: 21px; z-index: -1; background: var(--glow);
+                   filter: blur(16px); opacity: 0; transition: opacity .45s; animation: spin 3.5s linear infinite; }
+  .stage.working::before { opacity: 0.85; }
+  .stage::after { content: ""; position: absolute; inset: 0; border-radius: inherit; z-index: -1; background: var(--card); }
+
+  @keyframes spin { to { --a: 360deg; } }
+  @keyframes pulse { 50% { opacity: 0.35; } }
+  @keyframes load { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; } }
+</style>
+</head>
+<body>
+  <header class="top">
+    <div class="brand"><div class="mark" aria-hidden="true"><i></i><i></i><i></i></div><b class="gt">Reflex</b><small>by Atlas AI</small></div>
+    <button class="navbtn" id="back" title="Back (Alt+Left)" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <button class="navbtn" id="forward" title="Forward (Alt+Right)" aria-label="Forward"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button>
+    <button class="navbtn" id="reload" title="Reload (F5)" aria-label="Reload"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/></svg></button>
+    <button class="navbtn" id="home" title="Start page" aria-label="Start page"><svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7M6 10v10h12V10"/></svg></button>
+    <form class="address" id="address-form">
+      <span class="globe" id="globe"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg></span>
+      <img id="favicon" alt="" hidden>
+      <input id="address" spellcheck="false" autocomplete="off" placeholder="Search Google or type an address" aria-label="Address">
+      <span class="bar"></span>
+    </form>
+    <div class="live" id="live" role="status"><i></i><span id="live-text">Working</span>
+      <button id="stop" title="Stop" aria-label="Stop Reflex"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="modes" id="modes" role="group" aria-label="Speed and quality">
+      <button data-mode="fast" title="Fast: System 1 only, every step in about 0.2 s">Fast</button>
+      <button data-mode="balanced" title="Balanced: thinks it through with a screenshot when unsure (recommended)">Balanced</button>
+      <button data-mode="best" title="Best: thinks on more steps and allows longer tasks. Slower; on average no more accurate than Balanced">Best</button>
+    </div>
+    <span class="chip" id="models" data-s="starting"><span class="dot"></span><span id="models-text">Starting models…</span></span>
+  </header>
+  <main>
+    <section class="stage" id="stage" aria-label="Browser"></section>
+    <aside class="chatslot" id="chatslot" aria-label="Chat"></aside>
+  </main>
+<script>
+  const $ = (id) => document.getElementById(id);
+  const ACTIVE = ["starting", "planning", "thinking", "thinking hard"];
+
+  // the native browser + chat views follow these two slots
+  const rect = (el) => { const b = el.getBoundingClientRect(); return { x: b.left, y: b.top, width: b.width, height: b.height }; };
+  const layout = () => reflex.layout({ stage: rect($("stage")), chat: rect($("chatslot")) });
+  new ResizeObserver(layout).observe($("stage"));
+  new ResizeObserver(layout).observe($("chatslot"));
+  addEventListener("resize", layout);
+  layout();
+
+  // navigation
+  const pretty = (u) => u.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
+  let nav = {};
+  function showNav(n) {
+    nav = n;
+    $("back").disabled = !n.canBack;
+    $("forward").disabled = !n.canForward;
+    if (document.activeElement !== $("address")) $("address").value = n.url ? pretty(n.url) : "";
+    $("address-form").classList.toggle("loading", !!n.loading);
+    $("reload").innerHTML = n.loading ? '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>' : '<svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/></svg>';
+    if (!n.url) { $("favicon").hidden = true; $("globe").hidden = false; }
+  }
+  reflex.onNav(showNav);
+  reflex.onFavicon((src) => { $("favicon").hidden = !src; $("globe").hidden = !!src; if (src) $("favicon").src = src; });
+  $("address-form").addEventListener("submit", (e) => { e.preventDefault(); reflex.navigate($("address").value); $("address").blur(); });
+  $("address").addEventListener("focus", () => { $("address").value = nav.url || ""; $("address").select(); });
+  $("address").addEventListener("blur", () => { $("address").value = nav.url ? pretty(nav.url) : ""; });
+  $("address").addEventListener("keydown", (e) => { if (e.key === "Escape") $("address").blur(); });
+  reflex.onFocusAddress(() => $("address").focus());
+  $("back").onclick = () => reflex.nav("back");
+  $("forward").onclick = () => reflex.nav("forward");
+  $("reload").onclick = () => reflex.nav(nav.loading ? "stop" : "reload");
+  $("home").onclick = () => reflex.nav("home");
+
+  // speed / quality mode + theme
+  const showMode = (m) => { for (const b of $("modes").children) b.setAttribute("aria-pressed", String(b.dataset.mode === m)); };
+  $("modes").addEventListener("click", (e) => { const m = e.target.closest("button")?.dataset.mode; if (m) { showMode(m); reflex.setMode(m); } });
+
+  // model server status
+  function showServer(s) {
+    if (!s) return;
+    $("models").dataset.s = s.phase;
+    $("models-text").textContent = { starting: "Starting models…", system1: `Fast model ready · loading thinker`, ready: "Models ready",
+      error: "Models offline", stopping: "Stopping…" }[s.phase] || s.phase;
+    $("models").title = s.phase === "error" ? s.error || "" : s.phase === "ready"
+      ? `System 1 (0.6B, ~0.2 s per step) and System 2 (vision, 2B) are loaded on your GPU${s.external ? " (shared server)" : ""}.`
+      : "Loading the models onto your GPU…";
+  }
+  reflex.onServer(showServer);
+
+  // the agent's live state: glow around the browser + a working chip with Stop
+  function showAgent(v) {
+    const on = !!v && ACTIVE.includes(v.status);
+    $("stage").classList.toggle("working", on);
+    $("live").classList.toggle("on", on);
+    if (on) $("live-text").textContent = v.status === "thinking hard" ? `Thinking · step ${v.step}` : v.status === "planning" ? "Planning" : `Working · step ${v.step || 1}`;
+  }
+  $("stop").onclick = () => reflex.stop();
+  reflex.onStorage((changes, area) => {
+    if (area === "session" && changes.agent) showAgent(changes.agent.newValue);
+    if (area === "local" && changes.mode) showMode(changes.mode.newValue);
+    if (area === "local" && changes.theme) document.documentElement.dataset.theme = changes.theme.newValue;
+  });
+
+  reflex.state().then((s) => { showNav(s.nav); showServer(s.server); });
+  reflex.get("local", { mode: "balanced", theme: "pink" }).then((s) => { showMode(s.mode); document.documentElement.dataset.theme = s.theme; });
+  reflex.get("session", "agent").then((s) => showAgent(s.agent));
+</script>
+</body>
+</html>

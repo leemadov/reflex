@@ -1,0 +1,14 @@
+{
+  "name": "reflex-desktop",
+  "productName": "Reflex",
+  "version": "0.1.0",
+  "description": "Reflex by Atlas AI: desktop harness (built-in browser + chat + local models)",
+  "main": "main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^44.5.1"
+  }
+}

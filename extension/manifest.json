@@ -1,0 +1,38 @@
+{
+  "manifest_version": 3,
+  "name": "Reflex",
+  "version": "0.2.0",
+  "description": "Reflex by Atlas AI: a browser agent you chat with, driven by local decision models (python model.py serve).",
+  "permissions": [
+    "debugger",
+    "storage",
+    "sidePanel"
+  ],
+  "host_permissions": [
+    "http://127.0.0.1/*",
+    "http://localhost/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "side_panel": {
+    "default_path": "popup.html"
+  },
+  "action": {
+    "default_title": "Reflex",
+    "default_icon": {
+      "16": "icons/16.png",
+      "24": "icons/24.png",
+      "32": "icons/32.png",
+      "48": "icons/48.png"
+    }
+  },
+  "icons": {
+    "16": "icons/16.png",
+    "24": "icons/24.png",
+    "32": "icons/32.png",
+    "48": "icons/48.png",
+    "64": "icons/64.png",
+    "128": "icons/128.png"
+  }
+}

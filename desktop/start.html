@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Start</title>
+<style>
+  @font-face { font-family: "Inter"; src: url("../extension/fonts/Inter-latin.woff2") format("woff2"); font-weight: 300 700; font-display: block; }
+  :root { --ink: #1d1d1f; --muted: #6e6e73; --light: #86868b; --line: rgba(29, 29, 31, 0.08);
+          --c1: #E60ACF; --c2: #FF4FD8; --c3: #FF9BDD; --c4: #6EC8F0; --g1: #E60ACF; --g2: #B83CF0; --g3: #6A5CFF; --g4: #1E9BD7;
+          --grad: linear-gradient(90deg, var(--g1), var(--g2), var(--g3), var(--g4));
+          --glow: conic-gradient(from var(--a, 0deg), var(--c1), var(--c2), var(--c4), var(--c3), var(--c1)); }
+  @property --a { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body { display: grid; place-items: center; font: 15px/1.45 "Inter", system-ui, "Segoe UI", sans-serif; color: var(--ink); -webkit-font-smoothing: antialiased;
+         background: radial-gradient(700px 420px at 50% 115%, color-mix(in srgb, var(--c2) 14%, transparent), transparent 70%),
+                     radial-gradient(600px 380px at 92% -10%, color-mix(in srgb, var(--c4) 12%, transparent), transparent 70%), #fff; overflow: hidden; }
+  .wrap { width: min(640px, 88vw); text-align: center; margin-top: -4vh; }
+
+  /* glossy capsules (same recipe as the ad and the chat's welcome) */
+  .caps { height: 150px; display: flex; justify-content: center; align-items: flex-end; gap: 11px; margin-bottom: 26px; }
+  .caps i { position: relative; width: 34px; height: var(--h); border-radius: 999px; overflow: hidden;
+            background: linear-gradient(180deg, var(--c3) 0%, var(--c2) 28%, var(--c1) 62%, var(--c4) 100%);
+            box-shadow: 0 16px 26px -12px color-mix(in srgb, var(--c1) 70%, transparent), inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+            animation: eqh 2.8s ease-in-out infinite; }
+  .caps i:nth-child(1) { --h: 58px; animation-delay: -0.3s; } .caps i:nth-child(2) { --h: 96px; animation-delay: -1.1s; }
+  .caps i:nth-child(3) { --h: 128px; animation-delay: -1.7s; } .caps i:nth-child(4) { --h: 148px; animation-delay: -0.6s; }
+  .caps i:nth-child(5) { --h: 110px; animation-delay: -1.4s; } .caps i:nth-child(6) { --h: 132px; animation-delay: -2.1s; }
+  .caps i:nth-child(7) { --h: 76px; animation-delay: -0.9s; }
+
+  h1 { font-size: clamp(30px, 4.4vw, 46px); font-weight: 650; letter-spacing: -0.035em; line-height: 1.08; margin: 0 0 10px; }
+  .gt { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  p.sub { color: var(--muted); margin: 0 0 26px; }
+
+  form { position: relative; isolation: isolate; display: flex; align-items: center; gap: 10px; height: 56px; padding: 0 8px 0 20px;
+         border-radius: 999px; background: #fff; border: 1px solid var(--line);
+         box-shadow: 0 18px 44px rgba(29, 29, 31, 0.10), 0 2px 6px rgba(29, 29, 31, 0.05); }
+  form::before { content: ""; position: absolute; inset: -3px; border-radius: inherit; z-index: -2; background: var(--glow); filter: blur(10px);
+                 opacity: 0.35; animation: spin 6s linear infinite; transition: opacity .25s; }
+  form:focus-within::before { opacity: 0.7; }
+  form::after { content: ""; position: absolute; inset: 0; border-radius: inherit; z-index: -1; background: #fff; }
+  form svg { width: 18px; height: 18px; flex: none; fill: none; stroke: var(--light); stroke-width: 2; stroke-linecap: round; }
+  input { flex: 1; min-width: 0; height: 100%; border: 0; outline: 0; font: inherit; font-size: 16px; color: var(--ink); background: transparent; }
+  input::placeholder { color: var(--light); }
+  form button { width: 40px; height: 40px; border: 0; border-radius: 50%; display: grid; place-items: center; cursor: pointer;
+                background: linear-gradient(135deg, var(--g1), var(--g3)); }
+  form button svg { stroke: #fff; }
+
+  .tiles { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 26px; }
+  .tile { display: flex; align-items: center; gap: 8px; padding: 8px 14px 8px 8px; border-radius: 999px; background: #fff; border: 1px solid var(--line);
+          color: var(--ink); text-decoration: none; font-size: 13px; box-shadow: 0 1px 3px rgba(29, 29, 31, 0.04); transition: transform .15s, box-shadow .15s; }
+  .tile:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(29, 29, 31, 0.09); }
+  .tile b { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-size: 12px; font-weight: 650;
+            background: linear-gradient(135deg, var(--g1), var(--g3)); }
+  .hint { margin-top: 30px; font-size: 12px; color: var(--light); }
+  .hint kbd { font: inherit; padding: 1px 6px; border-radius: 5px; border: 1px solid var(--line); background: #fafafa; }
+
+  @keyframes eqh { 0%, 100% { height: var(--h); } 50% { height: calc(var(--h) * 0.72); } }
+  @keyframes spin { to { --a: 360deg; } }
+  @media (prefers-reduced-motion: reduce) { *, *::before { animation: none !important; } }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="caps" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <h1>Where should Reflex <span class="gt">go?</span></h1>
+    <p class="sub">Open a site here, then tell Reflex what to do in the chat. It reads the page, clicks and types for you.</p>
+    <form id="go" role="search">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input id="q" type="search" aria-label="Search or enter address" placeholder="Search Google or type an address" autofocus>
+      <button aria-label="Go"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    </form>
+    <nav class="tiles" aria-label="Shortcuts">
+      <a class="tile" href="https://www.google.com/?hl=en"><b>G</b>Google</a>
+      <a class="tile" href="https://www.amazon.com/"><b>A</b>Amazon</a>
+      <a class="tile" href="https://www.airbnb.com/"><b>Ai</b>Airbnb</a>
+      <a class="tile" href="https://www.youtube.com/"><b>Y</b>YouTube</a>
+      <a class="tile" href="https://en.wikipedia.org/"><b>W</b>Wikipedia</a>
+      <a class="tile" href="#" id="demo"><b>D</b>Demo shop</a>
+    </nav>
+    <div class="hint"><kbd>Ctrl</kbd> <kbd>L</kbd> address bar &nbsp;·&nbsp; <kbd>Ctrl</kbd> <kbd>K</kbd> chat &nbsp;·&nbsp; <kbd>F5</kbd> reload</div>
+  </div>
+<script>
+  const toUrl = (t) => /^[a-z]+:\/\//i.test(t) ? t : /^[\w-]+(\.[\w-]+)+(\/\S*)?$/.test(t) ? `https://${t}` : `https://www.google.com/search?hl=en&q=${encodeURIComponent(t)}`;
+  document.getElementById("go").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const t = document.getElementById("q").value.trim();
+    if (t) location.href = toUrl(t);
+  });
+  // the local demo shop (computer-use-agent apps/server.py) is empty until its session is seeded
+  document.getElementById("demo").addEventListener("click", async (e) => {
+    e.preventDefault();
+    try { await fetch("http://127.0.0.1:5055/api/reset", { method: "POST", mode: "no-cors", body: JSON.stringify({ sid: "desktop", seed: 0 }) }); } catch {}
+    location.href = "http://127.0.0.1:5055/shop?sid=desktop";
+  });
+</script>
+</body>
+</html>
