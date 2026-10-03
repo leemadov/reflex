@@ -1,59 +1,59 @@
 {
- "system": "Reflex Instinct 0.6B (Atlas AI)",
+ "system": "Reflex Instinct -> Reason, routed (Atlas AI)",
  "accuracy": {
-  "easy": 0.9166666666666666,
-  "standard": 0.6666666666666666,
-  "hard": 0.2882882882882883
+  "easy": 0.9583333333333334,
+  "standard": 0.75,
+  "hard": 0.3783783783783784
  },
  "chance": {
   "easy": 0.284375,
   "standard": 0.3111111111111111,
   "hard": 0.3361861861861862
  },
- "hard_ece": 0.17648648648648657,
+ "hard_ece": 0.181358416193229,
  "latency_s": {
-  "p50_raw": 0.04426270000112709,
-  "p95_raw": 0.21595315000377013,
-  "p50_adjusted": 0.23852540000225417,
-  "p95_adjusted": 0.5819063000075403
+  "p50_raw": 0.05633569999918109,
+  "p95_raw": 13.584505349997926,
+  "p50_adjusted": 0.2626713999983622,
+  "p95_adjusted": 27.31901069999585
  },
- "usd_per_1000_estimate": 0.006007575757575758,
+ "usd_per_1000_estimate": 0.028925497835497836,
  "axes": {
-  "intelligence": 37.251856025626985,
-  "calibration": 64.70270270270268,
-  "speed": 88.57612308068079,
-  "cost": 76.63902231664738
+  "intelligence": 45.73663862419175,
+  "calibration": 63.7283167613542,
+  "speed": 71.44122242943374,
+  "cost": 56.16157473064781
  },
- "score_public_only_estimate": 33.3193897344213,
+ "score_public_only_estimate": 48.25522344924946,
  "by_family": {
   "easy/extraction": 1.0,
-  "easy/fact": 0.75,
+  "easy/fact": 0.917,
   "easy/intent": 0.917,
   "easy/tool_selection": 1.0,
-  "hard/adversarial": 0.167,
+  "hard/adversarial": 0.5,
   "hard/ambiguous": 0.286,
-  "hard/judge_hard": 0.412,
+  "hard/judge_hard": 0.471,
   "hard/long_policy": 0.368,
-  "hard/multi_hop": 0.167,
-  "hard/probability": 0.4,
-  "hard/routing_hard": 0.0,
-  "hard/temporal_numeric": 0.133,
-  "hard/tradeoff": 0.833,
-  "hard/trap": 0.125,
-  "standard/adequacy": 0.5,
-  "standard/extraction": 0.583,
-  "standard/intent": 0.667,
+  "hard/multi_hop": 0.278,
+  "hard/probability": 0.3,
+  "hard/routing_hard": 0.2,
+  "hard/temporal_numeric": 0.333,
+  "hard/tradeoff": 0.667,
+  "hard/trap": 0.5,
+  "standard/adequacy": 0.583,
+  "standard/extraction": 0.667,
+  "standard/intent": 0.583,
   "standard/ordinal": 0.833,
-  "standard/policy": 0.417,
-  "standard/routing": 1.0
+  "standard/policy": 0.917,
+  "standard/routing": 0.917
  },
- "would_place_among_ranked": 37,
+ "would_place_among_ranked": 12,
  "ranked_of": 92,
  "same_items_rank": {
-  "easy": "#41 of 50",
-  "standard": "#38 of 50",
-  "hard": "#50 of 50",
-  "all": "#41 of 50"
+  "easy": "#38 of 50",
+  "standard": "#32 of 50",
+  "hard": "#35 of 50",
+  "all": "#35 of 50"
  },
  "neighbours": [
   {
@@ -98,5 +98,16 @@
    "easy": 0.8888888888888888,
    "standard": 0.5416666666666666
   }
- ]
+ ],
+ "settings_per_half": {
+  "temperature": {
+   "0": 3.176444951504813,
+   "1": 3.176444951504813
+  },
+  "escalate_below": {
+   "0": 0.35,
+   "1": 0.05
+  }
+ },
+ "escalated_share": 0.38961038961038963
 }
