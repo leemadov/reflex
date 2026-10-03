@@ -235,6 +235,19 @@ pink design. Launch it with the **Reflex** shortcut on the desktop, `Reflex.cmd`
   Socks to the cart" took 7.4 s and the follow-up "now add a backpack too" took 3.4 s. With warm models the times are
   4.8 s and 2.0 s.
 
+## Wallpapers (`wallpapers/`)
+
+8K wallpapers in the Reflex pink style:
+
+| File | Size | For |
+|---|---|---|
+| [`reflex-wallpaper-16x9.jpg`](wallpapers/reflex-wallpaper-16x9.jpg) | 7680×4320 | 16:9 monitors and TVs |
+| [`reflex-wallpaper-16x10.jpg`](wallpapers/reflex-wallpaper-16x10.jpg) | 7680×4800 | 16:10 laptops (2560×1600) |
+| [`reflex-wallpaper-21x9.jpg`](wallpapers/reflex-wallpaper-21x9.jpg) | 7680×3216 | 21:9 ultrawide (3440×1440) |
+| [`reflex-wallpaper-32x9.jpg`](wallpapers/reflex-wallpaper-32x9.jpg) | 7680×2160 | 32:9 super-ultrawide (5120×1440) |
+
+![Reflex wallpaper](wallpapers/reflex-wallpaper-16x9.jpg)
+
 ## Limits
 
 - Text only: it reads accessibility trees, not screenshots. Canvas apps and unlabeled icons are invisible to it.
