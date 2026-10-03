@@ -25,3 +25,4 @@ desktop/rec/
 # JevBench raw responses and spend ledger (regenerable)
 jevbench_run/raw-*/
 jevbench_run/ledger.jsonl
+jevbench_run/reason_server.log

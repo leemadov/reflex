@@ -1,6 +1,7 @@
-"""Score Reflex Instinct's JevBench public run with JevBench's own scoring code, and place it on the published board.
+"""Score a JevBench public run of ours with JevBench's own scoring code, and place it on the published board.
 
-    python jevbench_run/score.py [--bench ../jevbench]
+    python jevbench_run/score.py                                   # Reflex Instinct (jevbench_run/*.jsonl)
+    python jevbench_run/score.py --run reason --name "Reflex Reason 2B (Atlas AI)" --price-in 0.03 --price-out 0.15
 
 Public items only (easy 48, standard 72, hard 111). The official score also uses the judge tier, held-out items and
 a sealed set that only the benchmark's operators run, so the composite here is an estimate, labelled as such.
@@ -13,13 +14,19 @@ from pathlib import Path
 
 HERE = Path(__file__).parent
 TIERS = {"easy": "easy", "original": "standard", "hard": "hard"}
-PRICE_IN_PER_M = 0.01  # the board's rule for 0.6B models: DeepInfra Qwen3-Embedding-0.6B size class, $0.01/M input, $0 output
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--bench", default=str(HERE.parent.parent / "jevbench"))
+    ap.add_argument("--run", default=".", help="folder under jevbench_run/ holding easy/original/hard.jsonl")
+    ap.add_argument("--name", default="Reflex Instinct 0.6B (Atlas AI)")
+    # the board's size-class reference prices: 0.6B -> DeepInfra Qwen3-Embedding-0.6B $0.01/M in, $0 out (Instinct
+    # generates nothing); ~2B -> DeepInfra Qwen3.5-4B $0.03/M in, $0.15/M out (no hosted ~2B listed; errs high)
+    ap.add_argument("--price-in", type=float, default=0.01)
+    ap.add_argument("--price-out", type=float, default=0.0)
     a = ap.parse_args()
+    run = HERE / a.run
     sys.path.insert(0, a.bench)
     from jevbench import composite_v13 as v13, composite_v14 as v14
     from jevbench.metrics import ece_top_label, percentile
@@ -29,7 +36,7 @@ def main():
         for line in open(Path(a.bench) / "datasets/public" / f"{f}.jsonl", encoding="utf-8"):
             t = json.loads(line)
             tasks[t["id"]] = (tier, t)
-        for line in open(HERE / f"{f}.jsonl", encoding="utf-8"):
+        for line in open(run / f"{f}.jsonl", encoding="utf-8"):
             r = json.loads(line)
             rows[r["task_id"]] = r
 
@@ -47,22 +54,21 @@ def main():
     lat = [r["latency_s"] for r in rows.values()]
     p50, p95 = percentile(lat, 0.5), percentile(lat, 0.95)
     tokens = statistics.mean(r["usage"]["input_tokens"] for r in rows.values())
-    usd_1000 = tokens * 1000 * PRICE_IN_PER_M / 1e6
+    out_tokens = statistics.mean(r["usage"].get("output_tokens", 0) for r in rows.values())
+    usd_1000 = 1000 * (tokens * a.price_in + out_tokens * a.price_out) / 1e6
 
     axes = {"intelligence": v13.intelligence(acc, chance), "calibration": v13.calibration(ece),
             "speed": v13.speed(p50, p95, "gpu"), "cost": v13.cost(usd_1000)}
     score = v14.harmonic(axes)
-    ours = {"system": "Reflex Instinct 0.6B (Atlas AI)", "accuracy": acc, "chance": chance, "hard_ece": ece,
+    ours = {"system": a.name, "accuracy": acc, "chance": chance, "hard_ece": ece,
             "latency_s": {"p50_raw": p50, "p95_raw": p95, "p50_adjusted": v13.adjusted_latency(p50, "gpu"),
                           "p95_adjusted": v13.adjusted_latency(p95, "gpu")},
-            "input_tokens_mean": tokens, "usd_per_1000_estimate": usd_1000, "axes": axes,
+            "input_tokens_mean": tokens, "output_tokens_mean": out_tokens, "usd_per_1000_estimate": usd_1000, "axes": axes,
             "score_public_only_estimate": score,
             "by_family": {k: round(c / n, 3) for k, (c, n) in sorted(by_family.items())}}
 
     board = json.load(open(Path(a.bench) / "results/v1.4.2.2/jevbench-v1.4.2.2-results.json", encoding="utf-8"))["systems"]
-    hp = sorted((s for s in board if s["tiers"].get("hard_public") is not None), key=lambda s: -s["tiers"]["hard_public"])
-    ours["hard_public_rank"] = 1 + sum(s["tiers"]["hard_public"] > acc["hard"] for s in hp)
-    ours["hard_public_of"] = len(hp) + 1
+    # (only one board row publishes hard-public accuracy, so no rank on it here)
     ranked = sorted((s for s in board if s.get("ranked") and s.get("jevbench_score") is not None), key=lambda s: -s["jevbench_score"])
     ours["would_place_among_ranked"] = 1 + sum(s["jevbench_score"] > score for s in ranked)
     ours["ranked_of"] = len(ranked) + 1
@@ -71,7 +77,16 @@ def main():
                            "easy": s["tiers"].get("easy"), "standard": s["tiers"].get("standard"),
                            "hard_public": s["tiers"].get("hard_public"), "axes": s.get("axes")}
                           for s in board if any(k in s["display"].lower() for k in keep)]
-    (HERE / "summary.json").write_text(json.dumps(ours, indent=1))
+    # same 231 public items, every system's own answers (published per-task outcomes of the v1.2 round)
+    per = json.load(open(Path(a.bench) / "results/v1.2/jevbench-v1.2-per-task.json", encoding="utf-8"))
+    tier_of = {t["id"]: t["tier"] for t in per["tasks"]}
+    def public_acc(ok):
+        r = {t: statistics.mean(ok.get(i, False) for i in tier_of if tier_of[i] == t) for t in ("easy", "standard", "hard")}
+        return {**r, "all": statistics.mean(ok.get(i, False) for i in tier_of)}
+    mine = public_acc({i: bool(r["correct"]) for i, r in rows.items()})
+    others = [public_acc({i: v[0] == "c" for i, v in s["public_tasks"].items()}) for s in per["systems"].values() if not s.get("partial")]
+    ours["same_items_rank"] = {k: f"#{1 + sum(o[k] > mine[k] for o in others)} of {len(others) + 1}" for k in mine}
+    (run / "summary.json").write_text(json.dumps(ours, indent=1))
     print(json.dumps({k: v for k, v in ours.items() if k not in ("neighbours", "by_family")}, indent=1))
     print("\nby family:", json.dumps(ours["by_family"]))
     print(f"\n{'system':58} {'score':>6} {'rank':>5} {'easy':>6} {'std':>6} {'hard':>6}")

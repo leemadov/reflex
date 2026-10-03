@@ -1,0 +1,21 @@
+{
+  "adapter": "typesafe",
+  "charged_usd": 0.0,
+  "cost_basis": "self_hosted_local_gpu",
+  "dataset_hash": "3cbd0e951fa8059741955ef2bd3273b0bb60aecae8f4a68b89872f55f7376b3d",
+  "delay_s": 0.0,
+  "endpoint": "http://127.0.0.1:8766",
+  "finished_utc": "2026-10-03T09:12:16.991349+00:00",
+  "key_env_used": false,
+  "n_attempted": 48,
+  "n_planned": 48,
+  "price_input_per_m": 0.0,
+  "price_output_per_m": 0.0,
+  "request_options": {},
+  "requested_model": "reflex-reason-2b",
+  "resolved_models": [
+    "reflex-reason-2b"
+  ],
+  "run_label": "reflex-reason-2b",
+  "started_utc": "2026-10-03T09:10:10.737565+00:00"
+}
