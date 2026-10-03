@@ -55,6 +55,19 @@ module.exports = async function selftest({ win, browser, agent, server, dir }) {
     log({ event: "cart", cart: state.shop.cart.map((r) => `${names[r.product_id]} x${r.qty}`) });
     await wait(1200);
     await shot("3-done");
+    // saved chats: the chat gets a model-written title shortly after its first run
+    for (let i = 0; i < 40; i++) {
+      const { chats } = await agent.store.local.get({ chats: [] });
+      if (chats[0] && chats[0].messages.length >= tasks.length * 2) { log({ event: "chats", chats: chats.slice(0, 3).map((c) => [c.title, c.messages.length]) }); break; }
+      await wait(250);
+    }
+    const chatView = win.contentView.children.find((v) => v !== browser).webContents;
+    await chatView.executeJavaScript("document.querySelector('.actions summary')?.click()");
+    await wait(600);
+    await shot("4-actions-open");
+    await chatView.executeJavaScript("document.getElementById('history')?.click()");
+    await wait(600);
+    await shot("5-saved-chats");
   } catch (e) {
     log({ event: "error", error: String(e?.stack || e) });
   }

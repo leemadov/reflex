@@ -83,6 +83,17 @@
   .step summary { cursor: pointer; color: var(--g2); font-weight: 500; list-style: none; }
   .step summary::-webkit-details-marker { display: none; }
   .step details p { margin: 4px 0 2px; padding: 8px 10px; border-radius: 10px; background: var(--ground); white-space: pre-wrap; }
+  /* all of a run's actions fold into one "Actions" row */
+  .actions > summary { display: inline-flex; align-items: center; gap: 7px; padding: 4px 6px 4px 10px; border-radius: 999px; background: var(--ground);
+                       font-size: 12px; font-weight: 600; color: var(--muted); cursor: pointer; list-style: none; user-select: none; }
+  .actions > summary::-webkit-details-marker { display: none; }
+  .actions > summary::before { content: ""; width: 5px; height: 5px; border-right: 1.6px solid currentColor; border-bottom: 1.6px solid currentColor;
+                               transform: rotate(-45deg); transition: transform 0.15s; }
+  .actions[open] > summary::before { transform: rotate(45deg) translate(-1px, -1px); }
+  .actions > summary:hover { color: var(--ink); }
+  .actions .count { min-width: 18px; height: 18px; padding: 0 6px; border-radius: 999px; display: inline-grid; place-items: center;
+                    background: var(--card); color: var(--ink); font-size: 11px; }
+  .actions .steps { margin-top: 6px; }
   .live { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); margin-top: 8px; }
   .dots { display: inline-flex; gap: 3px; }
   .dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--grad); animation: bounce 1s ease-in-out infinite; }
@@ -154,8 +165,19 @@
   .swatch[data-t="blue"] { background: linear-gradient(135deg, #0030FF, #F2C3A0); }
   .swatch[data-t="lime"] { background: linear-gradient(135deg, #3DB511, #F2E600); }
 
+  /* saved chats */
+  .chat-list { list-style: none; margin: 8px 0 0; padding: 0; max-height: 60vh; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; }
+  .chat-item { width: 100%; display: flex; flex-direction: column; gap: 1px; text-align: left; border: 0; border-radius: 12px;
+               padding: 9px 10px; background: transparent; }
+  .chat-item:hover { background: var(--ground); }
+  .chat-item:disabled { opacity: 0.5; cursor: default; background: transparent; }
+  .chat-item b { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .chat-item small { font-size: 11px; color: var(--light); }
+  .chat-item.current { background: color-mix(in srgb, var(--c2) 10%, white); }
+  .no-chats { color: var(--muted); font-size: 13px; padding: 10px 2px; }
+
   /* desktop app: the top bar already carries the brand and model status */
-  .desk-title { display: none; font-size: 15px; font-weight: 650; letter-spacing: -0.02em; }
+  .desk-title { display: none; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 15px; font-weight: 650; letter-spacing: -0.02em; }
   body.desktop { --ground: #f7f7fa; }
   body.desktop header { background: transparent; backdrop-filter: none; padding: 14px 14px 10px 18px; }
   body.desktop .mark, body.desktop .brand, body.desktop #status { display: none; }
@@ -173,9 +195,11 @@
   <header>
     <div class="mark" aria-hidden="true"><i></i><i></i><i></i></div>
     <div class="brand"><b class="gt">Reflex</b><small>by Atlas AI</small></div>
-    <span class="desk-title">Chat</span>
+    <span class="desk-title" id="chat-title">New chat</span>
     <div class="spacer"></div>
     <span id="status" class="pill"><span class="dot"></span><span id="status-text">Ready</span></span>
+    <button id="history" class="icon-btn" title="Saved chats" aria-label="Saved chats">
+      <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 2.6-6.4L3 8"/><path d="M3 3v5h5"/><path d="M12 7.5V12l3 2"/></svg></button>
     <button id="new" class="icon-btn" title="New chat" aria-label="New chat">
       <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
     <button id="gear" class="icon-btn" title="Settings" aria-label="Settings">
@@ -206,6 +230,13 @@
       <label>Max steps per message <input id="maxSteps" type="number" min="1" max="50"></label>
       <label>Think it through when the fast guess is below <input id="thinkBelow" type="number" min="0" max="1" step="0.05"></label>
       <label class="check"><input id="plan" type="checkbox"> Plan multi-step tasks first</label>
+    </div>
+  </div>
+
+  <div id="chats-sheet" class="sheet" aria-hidden="true">
+    <div class="panel" role="dialog" aria-label="Saved chats">
+      <h3>Chats <button id="chats-close" class="icon-btn" aria-label="Close chats"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></h3>
+      <ul id="chat-list" class="chat-list"></ul>
     </div>
   </div>
 

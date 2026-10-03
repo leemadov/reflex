@@ -311,9 +311,39 @@ async function publish(patch) {
 
 // The chat: every message and every finished run, kept in local storage so it survives closing the panel.
 // Each new message gets the last few turns as context, so "now add a backpack too" can be resolved into a full task.
-const CHAT_TURNS = 6;
+// Every chat is also saved in "chats" (newest first) under a title the writer model makes from its first message.
+const CHAT_TURNS = 6, SAVED_CHATS = 50; // ponytail: oldest saved chats drop off past 50; add delete/search if people keep more
 async function chat() { return (await chrome.storage.local.get({ chat: [] })).chat; }
-async function addToChat(msg) { await chrome.storage.local.set({ chat: [...await chat(), msg] }); }
+async function addToChat(msg) {
+  const s = await chrome.storage.local.get({ chat: [], chatId: null, chats: [] });
+  const messages = [...s.chat, msg], id = s.chatId ?? `chat-${Date.now()}`;
+  const title = s.chats.find((c) => c.id === id)?.title ?? quickTitle(messages[0].text ?? messages[0].task ?? "");
+  await chrome.storage.local.set({ chat: messages, chatId: id,
+    chats: [{ id, title, updated: Date.now(), messages }, ...s.chats.filter((c) => c.id !== id)].slice(0, SAVED_CHATS) });
+}
+// the stand-in title until the model's arrives (or if the server can't write one): the first words of the first message
+function quickTitle(text) {
+  const t = text.trim().split(/\s+/).slice(0, 6).join(" ").replace(/[.,;:!?]+$/, "");
+  return t ? (t[0].toUpperCase() + t.slice(1)).slice(0, 40) : "New chat";
+}
+const titlePrompt = (task) => "Give a chat a short title (2 to 5 words) from its first request.\n\n" +
+  "Request: Add a Coffee Mug to the cart\nTitle: Coffee mug in cart\n\n" +
+  "Request: Search for the weather in Athens\nTitle: Athens weather\n\n" +
+  "Request: Show only Electronics, then sort by price\nTitle: Electronics sorted by price\n\n" +
+  "Request: find me cheap flights from boston to denver on may 3\nTitle: Boston to Denver flights\n\n" +
+  "Request: What's the population of Lyon?\nTitle: Population of Lyon\n\n" +
+  `Request: ${task}\nTitle:`;
+async function nameChat(server, id) {
+  const saved = (await chrome.storage.local.get({ chats: [] })).chats.find((c) => c.id === id);
+  const first = saved?.messages.find((m) => m.role === "user")?.text;
+  if (!first) return;
+  const r = await fetch(server + "/v1/text", { method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ prompt: titlePrompt(first), max_tokens: 12 }) });
+  const t = (await r.json()).text.split("\n")[0].replace(/^["'“]+|["'”.]+$/g, "").trim();
+  if (!t || t.length > 48) return;
+  const { chats } = await chrome.storage.local.get({ chats: [] }); // re-read: a new message may have landed meanwhile
+  await chrome.storage.local.set({ chats: chats.map((c) => (c.id === id ? { ...c, title: t[0].toUpperCase() + t.slice(1) } : c)) });
+}
 const turnText = (m) => m.role === "user" ? m.text
   : `Did "${m.task}" (${m.status})${m.answer ? ". " + m.answer : ""}${m.error ? ". Error: " + m.error : ""}`;
 
@@ -344,7 +374,9 @@ async function start({ tabId, task, settings }) {
   if (run) throw new Error("A run is already active.");
   const context = (await chat()).slice(-CHAT_TURNS).map((m) => ({ role: m.role, text: turnText(m) }));
   const id = `run-${(await chat()).length}-${task.length}`;
+  const newChat = !(await chrome.storage.local.get({ chatId: null })).chatId; // first message of a new chat: name it
   await addToChat({ role: "user", text: task, id });
+  const { chatId } = await chrome.storage.local.get("chatId");
   run = { tabId, task, settings, history: [], acted: new Set(), plan: [task], part: 0,
     view: { id, status: "starting", task, said: task, step: 0, log: [], plan: [task], part: 0 } };
   const keepAlive = setInterval(() => chrome.runtime.getPlatformInfo(), 20e3); // MV3 stops a worker idle for 30 s, even mid-run
@@ -412,14 +444,21 @@ async function start({ tabId, task, settings }) {
     await point(null).catch(() => {}); // remove the glow
     await cursor("hide()");
     await chrome.debugger.detach({ tabId }).catch(() => {});
-    run = null;
+    const { server } = run.settings;
+    run = null; // free for the next message before naming the chat
+    // named after the run, not before: the model server does one thing at a time, and the task comes first
+    if (newChat) nameChat(server, chatId).catch(() => {});
   }
 }
 
 chrome.runtime.onMessage.addListener((msg) => {
   if (msg.cmd === "start") start(msg).catch((e) => addToChat({ role: "agent", task: msg.task, status: "error", error: e.message, log: [] }));
   else if (msg.cmd === "stop" && run) run.stopped = true;
-  else if (msg.cmd === "clear" && !run) chrome.storage.local.set({ chat: [] });
+  else if (msg.cmd === "clear" && !run) chrome.storage.local.set({ chat: [], chatId: null }); // it stays in "chats"
+  else if (msg.cmd === "open" && !run) chrome.storage.local.get({ chats: [] }).then(({ chats }) => {
+    const c = chats.find((x) => x.id === msg.id);
+    if (c) chrome.storage.local.set({ chat: c.messages, chatId: c.id });
+  });
 });
 
 // Chrome/Edge: the icon opens the side panel. Browsers without one (Opera): a full-height window docked to the right of

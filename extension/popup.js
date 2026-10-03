@@ -59,11 +59,13 @@ $("swatches").addEventListener("click", (e) => {
   const t = e.target.closest(".swatch")?.dataset.t;
   if (t) { settings.theme = t; applyTheme(t); chrome.storage.local.set({ theme: t }); }
 });
-const sheet = (open) => { $("sheet").classList.toggle("open", open); $("sheet").setAttribute("aria-hidden", String(!open)); };
-$("gear").onclick = () => sheet(true);
-$("close").onclick = () => sheet(false);
-$("sheet").onclick = (e) => { if (e.target === $("sheet")) sheet(false); };
-document.addEventListener("keydown", (e) => { if (e.key === "Escape") sheet(false); });
+const sheet = (id, open) => { $(id).classList.toggle("open", open); $(id).setAttribute("aria-hidden", String(!open)); };
+$("gear").onclick = () => sheet("sheet", true);
+$("close").onclick = () => sheet("sheet", false);
+$("history").onclick = () => sheet("chats-sheet", true);
+$("chats-close").onclick = () => sheet("chats-sheet", false);
+for (const id of ["sheet", "chats-sheet"]) $(id).onclick = (e) => { if (e.target === $(id)) sheet(id, false); };
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") { sheet("sheet", false); sheet("chats-sheet", false); } });
 
 async function checkServer() {
   try {
@@ -81,7 +83,7 @@ async function checkServer() {
 }
 
 // ---------- sending ----------
-let state = { chat: [], live: null };
+let state = { chat: [], live: null, chats: [], chatId: null };
 const running = () => Boolean(state.live && ACTIVE.includes(state.live.status));
 function autosize() { const t = $("task"); t.style.height = "auto"; t.style.height = Math.min(t.scrollHeight, 120) + "px"; }
 $("task").addEventListener("input", autosize);
@@ -116,6 +118,7 @@ function stepRow(e) {
   return el("li", { className: `step ${e.by === "thought" ? "thought" : "fast"}` }, icon(e.by === "thought" ? "thought" : "fast"), what, meta, why);
 }
 
+const openActions = new Set(); // ids of agent messages whose "Actions" the user opened
 function agentCard(v, live) {
   const card = el("div", { className: `msg agent${live ? " running" : ""}` });
   if (v.said && v.task && v.task !== v.said) card.append(el("p", { className: "understood" }, "Understood as ", el("b", {}, v.task)));
@@ -128,7 +131,13 @@ function agentCard(v, live) {
       return li;
     })));
   }
-  if (v.log?.length) card.append(el("ul", { className: "steps" }, ...v.log.map(stepRow)));
+  if (v.log?.length) { // every action folds into one "Actions" row; stays open across re-renders once opened
+    const box = el("details", { className: "actions", open: openActions.has(v.id) },
+      el("summary", {}, "Actions", el("span", { className: "count" }, String(v.log.length))),
+      el("ul", { className: "steps" }, ...v.log.map(stepRow)));
+    box.addEventListener("toggle", () => (box.open ? openActions.add(v.id) : openActions.delete(v.id)));
+    card.append(box);
+  }
   if (live) card.append(el("div", { className: "live" }, el("span", { className: "dots" }, el("i"), el("i"), el("i")),
     (LIVE_TEXT[v.status] || "Working…") + (v.step ? ` · step ${v.step}` : "")));
   else {
@@ -167,14 +176,34 @@ function render() {
   $("send").innerHTML = busy ? '<svg viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="2" fill="currentColor"/></svg>'
     : '<svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
   $("new").disabled = busy || !state.chat.length;
+  const current = state.chats.find((c) => c.id === state.chatId);
+  $("chat-title").textContent = current?.title ?? "New chat";
+  renderChats(busy);
   if (!$("status").classList.contains("off")) {
     $("status").classList.toggle("live", busy);
     $("status-text").textContent = busy ? (state.live.status === "thinking hard" ? "Thinking" : "Working") : "Ready";
   }
 }
 
-Promise.all([chrome.storage.local.get({ chat: [] }), chrome.storage.session.get("agent")]).then(([l, s]) => {
-  state = { chat: l.chat, live: s.agent ?? null };
+// ---------- saved chats ----------
+function ago(t) {
+  const m = Math.round((Date.now() - t) / 60000);
+  return m < 1 ? "just now" : m < 60 ? `${m} min ago` : m < 1440 ? `${Math.round(m / 60)} h ago`
+    : new Date(t).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+}
+function renderChats(busy) {
+  const rows = state.chats.map((c) => {
+    const n = c.messages.filter((m) => m.role === "user").length;
+    const b = el("button", { type: "button", className: `chat-item${c.id === state.chatId ? " current" : ""}`, disabled: busy },
+      el("b", {}, c.title), el("small", {}, `${n} message${n === 1 ? "" : "s"} · ${ago(c.updated)}`));
+    b.onclick = () => { chrome.runtime.sendMessage({ cmd: "open", id: c.id }); sheet("chats-sheet", false); };
+    return el("li", {}, b);
+  });
+  $("chat-list").replaceChildren(...(rows.length ? rows : [el("li", { className: "no-chats" }, "No saved chats yet. Every chat is saved here.")]));
+}
+
+Promise.all([chrome.storage.local.get({ chat: [], chats: [], chatId: null }), chrome.storage.session.get("agent")]).then(([l, s]) => {
+  state = { chat: l.chat, live: s.agent ?? null, chats: l.chats, chatId: l.chatId };
   render();
   $("task").focus();
 });
@@ -183,8 +212,11 @@ chrome.storage.onChanged.addListener((c, area) => {
     for (const k in DEFAULTS) if (c[k] && k !== "theme") { settings[k] = c[k].newValue; if (fields.includes(k)) $(k)[k === "plan" ? "checked" : "value"] = c[k].newValue; }
     if (c.theme) { settings.theme = c.theme.newValue; applyTheme(c.theme.newValue); }
   }
-  if (area === "local" && c.chat) state.chat = c.chat.newValue ?? [];
-  else if (area === "session" && "agent" in c) state.live = c.agent.newValue ?? null;
+  if (area === "local" && (c.chat || c.chats || "chatId" in c)) {
+    if (c.chat) state.chat = c.chat.newValue ?? [];
+    if (c.chats) state.chats = c.chats.newValue ?? [];
+    if ("chatId" in c && (c.chatId.newValue ?? null) !== state.chatId) { state.chatId = c.chatId.newValue ?? null; openActions.clear(); }
+  } else if (area === "session" && "agent" in c) state.live = c.agent.newValue ?? null;
   else return;
   render();
 });
