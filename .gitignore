@@ -21,6 +21,8 @@ tests/*.png
 # video renders and snapshots (regenerable, large)
 videos/clicky-ad/renders/
 videos/clicky-ad/snapshots/
+videos/reflex-short/renders/
+videos/reflex-short/snapshots/
 videos/clicky-ad/.hyperframes/frames-dark-backup/*.mp4
 desktop/rec/
 videos/clicky-ad/.hyperframes/old-footage/
