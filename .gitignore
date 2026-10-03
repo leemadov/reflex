@@ -21,3 +21,7 @@ tests/*.png
 # the ad projects stay local, out of the repo
 videos/
 desktop/rec/
+
+# JevBench raw responses and spend ledger (regenerable)
+jevbench_run/raw-*/
+jevbench_run/ledger.jsonl
