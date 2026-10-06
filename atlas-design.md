@@ -136,8 +136,11 @@ centre.
 - **Blobs:** two or three soft circles behind the hero: pink `rgba(230,10,207,.22–.30)`, blue `rgba(30,155,215,.18–.22)`
   and violet `rgba(184,60,240,.16–.20)`, with `filter: blur(70–80px)` (14 vh on the wallpapers).
 - **Edge glow:** a running agent, a focused input and the demo window all get a rotating conic-gradient halo:
-  `conic-gradient(from var(--a), var(--c1), var(--c2), var(--c4), var(--c3), var(--c1))`, blur 8–24 px, opacity
+  `conic-gradient(from var(--spin), var(--c1), var(--c2), var(--c4), var(--c3), var(--c1))`, blur 8–24 px, opacity
   0.5–0.8.
+- **The spin angle is `--spin`**, registered with `@property --spin { syntax: "<angle>"; inherits: false; initial-value: 0deg; }`
+  and animated `0deg → 360deg`. Don't name it `--a`: capsules use `--a/--b/--c` as colour stops, and a property
+  registered as an angle silently turns every capsule gradient into `none`.
 - **Cards:** white, radius 18–28 px, shadow `0 12px 32px rgba(29,29,31,.08), 0 1px 3px rgba(29,29,31,.05)`.
   Hero cards also get a pink ring, `0 0 0 8px rgba(230,10,207,.28)`, and a pink glow.
 

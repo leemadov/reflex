@@ -14,8 +14,8 @@
   [data-theme="blue"]   { --c1: #0030FF; --c2: #0A84FF; --c3: #19D3FF; --c4: #F2C3A0; --g1: #0030FF; --g2: #0A6CFF; --g3: #0096D6; --g4: #0A6CFF; }
   [data-theme="lime"]   { --c1: #3DB511; --c2: #9ED80F; --c3: #F2E600; --c4: #5FE3D2; --g1: #2E8F0C; --g2: #3DA60F; --g3: #129E86; --g4: #0E86A8; }
   :root { --grad: linear-gradient(90deg, var(--g1), var(--g2), var(--g3), var(--g4));
-          --glow: conic-gradient(from var(--a, 0deg), var(--c1), var(--c2), var(--c4), var(--c3), var(--c1)); }
-  @property --a { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+          --glow: conic-gradient(from var(--spin, 0deg), var(--c1), var(--c2), var(--c4), var(--c3), var(--c1)); }
+  @property --spin { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
 
   * { box-sizing: border-box; }
   html, body { height: 100%; margin: 0; overflow: hidden; }
@@ -80,7 +80,7 @@
   .stage.working::before { opacity: 0.85; }
   .stage::after { content: ""; position: absolute; inset: 0; border-radius: inherit; z-index: -1; background: var(--card); }
 
-  @keyframes spin { to { --a: 360deg; } }
+  @keyframes spin { to { --spin: 360deg; } }
   @keyframes pulse { 50% { opacity: 0.35; } }
   @keyframes load { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; } }

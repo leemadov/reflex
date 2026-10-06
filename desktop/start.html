@@ -8,8 +8,8 @@
   :root { --ink: #1d1d1f; --muted: #6e6e73; --light: #86868b; --line: rgba(29, 29, 31, 0.08);
           --c1: #E60ACF; --c2: #FF4FD8; --c3: #FF9BDD; --c4: #6EC8F0; --g1: #E60ACF; --g2: #B83CF0; --g3: #6A5CFF; --g4: #1E9BD7;
           --grad: linear-gradient(90deg, var(--g1), var(--g2), var(--g3), var(--g4));
-          --glow: conic-gradient(from var(--a, 0deg), var(--c1), var(--c2), var(--c4), var(--c3), var(--c1)); }
-  @property --a { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+          --glow: conic-gradient(from var(--spin, 0deg), var(--c1), var(--c2), var(--c4), var(--c3), var(--c1)); }
+  @property --spin { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
   * { box-sizing: border-box; }
   html, body { height: 100%; margin: 0; }
   body { display: grid; place-items: center; font: 15px/1.45 "Inter", system-ui, "Segoe UI", sans-serif; color: var(--ink); -webkit-font-smoothing: antialiased;
@@ -56,7 +56,7 @@
   .hint kbd { font: inherit; padding: 1px 6px; border-radius: 5px; border: 1px solid var(--line); background: #fafafa; }
 
   @keyframes eqh { 0%, 100% { height: var(--h); } 50% { height: calc(var(--h) * 0.72); } }
-  @keyframes spin { to { --a: 360deg; } }
+  @keyframes spin { to { --spin: 360deg; } }
   @media (prefers-reduced-motion: reduce) { *, *::before { animation: none !important; } }
 </style>
 </head>
