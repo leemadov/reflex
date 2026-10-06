@@ -15,6 +15,8 @@ by glossy capsule columns.
 | Atlas mark ("A" with arch), vector | [`docs/brand/atlas-mark.svg`](docs/brand/atlas-mark.svg) | Any size; the main symbol |
 | "ATLAS AI" wordmark, vector | [`docs/brand/atlas-ai-wordmark.svg`](docs/brand/atlas-ai-wordmark.svg) | "By ATLAS AI" lines |
 | Atlas logo, dark and light | [`docs/atlas-logo-dark.png`](docs/atlas-logo-dark.png), [`docs/atlas-logo-white.png`](docs/atlas-logo-white.png) | README header (801×510) |
+| Atlas logo, original | [`docs/brand/atlas-logo-original.png`](docs/brand/atlas-logo-original.png) | The source everything is cut from: white mark + ATLAS on black, 1254×1254 |
+| Mark and wordmark, PNG | `videos/clicky-ad/assets/atlas-mark.png`, `atlas-mark-dark.png`, `atlas-wordmark.png`, `atlas-wordmark-dark.png` (local only) | What the ad and short use (mark 416×339, wordmark 801×91); prefer the SVGs elsewhere |
 
 - **Names:** the company is **Atlas AI**; the product is **Reflex**; the models are **Reflex Instinct 0.6B** (fast)
   and **Reflex Reason 2B** (thinks it through).
